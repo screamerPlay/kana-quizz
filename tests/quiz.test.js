@@ -1,7 +1,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { SCRIPTS, toKatakana } from '../src/data/kana.js';
-import { questionCount, generateQuiz, isCorrect, hasPassed, normalize } from '../src/lib/quiz.js';
+import { questionCount, generateQuiz, isCorrect, hasPassed, normalize, nextEndlessQuestion } from '../src/lib/quiz.js';
 
 const { hiragana, katakana } = SCRIPTS;
 
@@ -65,4 +65,22 @@ test('pass threshold is 80%', () => {
   assert.ok(!hasPassed(15, 20));
   assert.ok(hasPassed(116, 145));
   assert.ok(!hasPassed(115, 145));
+});
+
+test('endless: never repeats the previous kana, weights misses', () => {
+  const pool = [...hiragana.lines, ...katakana.lines].flatMap((l) => l.kana);
+  assert.equal(pool.length, 208);
+  let last = null;
+  for (let i = 0; i < 2000; i++) {
+    const q = nextEndlessQuestion(pool, {}, last);
+    assert.notEqual(q.char, last);
+    last = q.char;
+  }
+  const misses = { 'ぬ': 50 };
+  let nu = 0;
+  for (let i = 0; i < 4000; i++) if (nextEndlessQuestion(pool, misses, null).char === 'ぬ') nu++;
+  // weight 151 out of 207 + 151 = 358 → expect ~42%
+  assert.ok(nu > 1400 && nu < 2000, `ぬ drawn ${nu} times`);
+  // single-item pool must still return something
+  assert.equal(nextEndlessQuestion([pool[0]], {}, pool[0].char), pool[0]);
 });

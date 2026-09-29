@@ -96,3 +96,20 @@ export function generateQuiz(lines, lineIndex, rng = Math.random) {
 
   return orderWithoutRepeats(shuffle(picked, rng), rng);
 }
+
+// ── Endless mode ──────────────────────────────────────────────────────────────
+// Draw one kana from the pool, never the same as the previous one, and weight kana by
+// how often they've been missed so weak spots come back more often.
+export const MISS_WEIGHT = 3;
+
+export function nextEndlessQuestion(pool, misses = {}, last = null, rng = Math.random) {
+  const options = pool.length > 1 ? pool.filter((k) => k.char !== last) : pool;
+  const weights = options.map((k) => 1 + MISS_WEIGHT * (misses[k.char] || 0));
+  const total = weights.reduce((a, b) => a + b, 0);
+  let r = rng() * total;
+  for (let i = 0; i < options.length; i++) {
+    r -= weights[i];
+    if (r < 0) return options[i];
+  }
+  return options[options.length - 1];
+}

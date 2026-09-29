@@ -13,6 +13,9 @@ A small React app (only `react` + `react-dom` at runtime) that teaches the kana 
 4. **Start from line**: a dropdown on the study screen lets you jump to any line. Quizzes for that line still
    include all earlier lines.
 
+5. **Endless mode** (`#/endless`): pick Hiragana, Katakana or both mixed (208 kana) and answer an unlimited
+   random stream. Kana you miss come back more often; stop any time for a summary of your most-missed characters.
+
 Progress is intentionally **not** saved: every visit starts fresh.
 
 ### Lines (26 per script)
@@ -53,7 +56,7 @@ src/
   data/kana.js          hiragana table (katakana derived by Unicode offset)
   lib/quiz.js           question count, generator, answer checker (pure, tested)
   lib/useHashRoute.js   ~15-line hash router
-  components/           Home, KanaTrainer (state machine), Study/Quiz/Results/Complete screens, LineSelect
+  components/           Home, KanaTrainer (state machine), Study/Quiz/Results/Complete screens, LineSelect, EndlessScreen
 tests/quiz.test.js
 ```
 

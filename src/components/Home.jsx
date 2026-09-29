@@ -18,6 +18,11 @@ export default function Home() {
             <span className="home-card-meta">{s.lines.length} lines · basic, dakuten, yōon</span>
           </a>
         ))}
+        <a href="#/endless" className="home-card endless">
+          <span className="home-card-jp">∞</span>
+          <span className="home-card-name">Endless mode</span>
+          <span className="home-card-meta">all 104 kana per script, or both mixed · no end, adaptive</span>
+        </a>
       </div>
     </section>
   );
