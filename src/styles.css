@@ -193,3 +193,61 @@ a { color: inherit; }
 .recent-misses { margin-top: 1rem; display: flex; flex-direction: column; gap: 0.4rem; }
 .recent-misses > div { display: flex; flex-wrap: wrap; gap: 0.4rem; }
 .chip { display: inline-flex; align-items: center; gap: 0.35rem; padding: 0.2rem 0.6rem; border-radius: 999px; background: var(--ko-bg); color: var(--ko); font-size: 0.9rem; font-weight: 600; }
+
+/* ── Read / Write mode switch ── */
+.trainer-title { display: flex; align-items: center; justify-content: space-between; gap: 1rem; flex-wrap: wrap; }
+.mode-switch { display: inline-flex; border: 1px solid var(--line); border-radius: 999px; padding: 3px; background: var(--surface); }
+.mode-switch a { text-decoration: none; padding: 0.35rem 1rem; border-radius: 999px; color: var(--muted); font-weight: 600; font-size: 0.9rem; }
+.mode-switch a.active { background: var(--ink); color: var(--bg); }
+.home-card-links { display: flex; gap: 0.5rem; margin-top: 0.9rem; flex-wrap: wrap; }
+.home-card-links .btn { padding: 0.5rem 0.9rem; font-size: 0.9rem; }
+
+/* ── Stroke-order diagram ── */
+.stroke-btn { background: none; border: none; padding: 0; cursor: pointer; line-height: 0; border-radius: 10px; }
+.stroke-btn:focus-visible { outline: 3px solid color-mix(in srgb, var(--accent) 45%, transparent); }
+.stroke-svg { display: block; max-width: 100%; height: auto; }
+.stroke-svg .guide { stroke: var(--line); stroke-width: 1; stroke-dasharray: 3 4; }
+.stroke-svg path { fill: none; stroke-linecap: round; stroke-linejoin: round; }
+.stroke-svg .ghost { stroke: var(--line); stroke-width: 5; }
+.stroke-svg .ink { stroke: var(--ink); stroke-width: 5; }
+.stroke-svg .ink.draw { stroke-dasharray: 1; stroke-dashoffset: 1; animation: drawStroke linear forwards; }
+.stroke-svg .num circle { fill: var(--accent); }
+.stroke-svg .num text { fill: #fff; font-size: 7.5px; font-weight: 700; text-anchor: middle; font-family: var(--ui); }
+.stroke-svg .num[style] { opacity: 0; animation: fadeIn 0.2s forwards; }
+@keyframes drawStroke { to { stroke-dashoffset: 0; } }
+@keyframes fadeIn { to { opacity: 1; } }
+.kana-card.write { padding: 0.75rem 0.5rem; }
+
+/* ── Writing quiz ── */
+.write-prompt { display: flex; flex-direction: column; align-items: center; gap: 0.15rem; margin: 0.5rem 0 1rem; }
+.write-romaji { font-size: clamp(2.6rem, 9vw, 4rem); font-weight: 800; line-height: 1.1; color: var(--accent); }
+.write-area { display: grid; grid-template-columns: minmax(0, 360px) 1fr; gap: 1.25rem; align-items: start; justify-content: center; }
+.draw-canvas {
+  width: 100%; max-width: 360px; aspect-ratio: 1 / 1; display: block; touch-action: none; cursor: crosshair;
+  background: var(--bg); border: 2px solid var(--line); border-radius: 16px; --line: #cfc9bf; --ink: #1d1b19;
+}
+@media (prefers-color-scheme: dark) { .draw-canvas { --line: #3d3934; --ink: #f1ede6; } }
+.draw-canvas.disabled { cursor: default; }
+.write-result { display: flex; flex-direction: column; align-items: center; gap: 0.5rem; padding: 1rem; border-radius: 14px; text-align: center; }
+.write-result.ok { background: var(--ok-bg); }
+.write-result.ko { background: var(--ko-bg); }
+.write-result-head { display: flex; align-items: baseline; gap: 0.6rem; font-weight: 700; }
+.write-result-head .pct { font-size: 2.4rem; line-height: 1; }
+.write-result.ok .pct { color: var(--ok); }
+.write-result.ko .pct { color: var(--ko); }
+.write-notes { margin: 0; padding-left: 1.1rem; text-align: left; font-size: 0.9rem; }
+.write-actions { margin-top: 1.25rem; }
+.btn:disabled { opacity: 0.45; cursor: not-allowed; }
+@media (max-width: 640px) {
+  .write-area { grid-template-columns: 1fr; }
+  .draw-canvas { max-width: 100%; }
+}
+
+/* Model kana next to the romaji prompt */
+.write-prompt-row { display: flex; align-items: center; justify-content: center; gap: 1.25rem; }
+.write-model { display: inline-flex; padding: 4px; border-radius: 12px; background: var(--bg); border: 1px solid var(--line); }
+.write-model.hidden {
+  width: 106px; height: 106px; align-items: center; justify-content: center;
+  font-size: 2.6rem; font-weight: 800; color: var(--muted); border-style: dashed;
+}
+.btn.toggle-model { margin-top: 0.4rem; padding: 0.35rem 0.8rem; font-size: 0.85rem; border-radius: 999px; }

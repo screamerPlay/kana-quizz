@@ -4,15 +4,24 @@ import StudyScreen from './StudyScreen.jsx';
 import QuizScreen from './QuizScreen.jsx';
 import ResultsScreen from './ResultsScreen.jsx';
 import CompleteScreen from './CompleteScreen.jsx';
+import WriteStudyScreen from './WriteStudyScreen.jsx';
+import WriteQuizScreen from './WriteQuizScreen.jsx';
+import { STROKES } from '../data/strokes.js';
 
 // State machine: study → quiz → results → (study next line | quiz again | study again) … → complete
-export default function KanaTrainer({ script }) {
-  const { lines } = script;
+export default function KanaTrainer({ script, mode = 'read' }) {
+  // Writing mode skips yōon lines (they are combinations of kana already learned) and
+  // only keeps kana we have stroke data for.
+  const lines =
+    mode === 'write'
+      ? script.lines.filter((l) => l.group !== 'Yōon' && l.kana.every((k) => STROKES[k.char])).map((l, index) => ({ ...l, index }))
+      : script.lines;
   const [lineIndex, setLineIndex] = useState(0);
   const [phase, setPhase] = useState('study');
   const [questions, setQuestions] = useState([]);
   const [answers, setAnswers] = useState([]);
   const [quizId, setQuizId] = useState(0);
+  const [showModel, setShowModel] = useState(true); // write mode: show the kana next to the romaji
 
   const line = lines[lineIndex];
 
@@ -43,9 +52,15 @@ export default function KanaTrainer({ script }) {
   return (
     <section className="trainer">
       <div className="trainer-head">
-        <h1>
-          <span lang="ja">{script.jp}</span> {script.name}
-        </h1>
+        <div className="trainer-title">
+          <h1>
+            <span lang="ja">{script.jp}</span> {script.name}
+          </h1>
+          <nav className="mode-switch" aria-label="Mode">
+            <a href={`#/${script.id}`} className={mode === 'read' ? 'active' : ''}>Read</a>
+            <a href={`#/${script.id}/write`} className={mode === 'write' ? 'active' : ''}>Write</a>
+          </nav>
+        </div>
         <div className="line-progress" aria-label="Line progress">
           {lines.map((l) => (
             <span
@@ -57,14 +72,30 @@ export default function KanaTrainer({ script }) {
         </div>
       </div>
 
-      {phase === 'study' && (
+      {phase === 'study' && mode === 'read' && (
         <StudyScreen lines={lines} line={line} onLineChange={goToLine} onStart={startQuiz} />
       )}
-      {phase === 'quiz' && (
+      {phase === 'study' && mode === 'write' && (
+        <WriteStudyScreen lines={lines} line={line} onLineChange={goToLine} onStart={startQuiz} />
+      )}
+      {phase === 'quiz' && mode === 'read' && (
         <QuizScreen key={quizId} line={line} questions={questions} onFinish={finishQuiz} onQuit={() => setPhase('study')} />
+      )}
+      {phase === 'quiz' && mode === 'write' && (
+        <WriteQuizScreen
+          key={quizId}
+          script={script}
+          line={line}
+          questions={questions}
+          onFinish={finishQuiz}
+          onQuit={() => setPhase('study')}
+          showModel={showModel}
+          onToggleModel={() => setShowModel((v) => !v)}
+        />
       )}
       {phase === 'results' && (
         <ResultsScreen
+          mode={mode}
           line={line}
           isLast={lineIndex + 1 >= lines.length}
           answers={answers}
@@ -75,7 +106,7 @@ export default function KanaTrainer({ script }) {
           onStudy={() => setPhase('study')}
         />
       )}
-      {phase === 'complete' && <CompleteScreen script={script} onRestart={() => goToLine(0)} />}
+      {phase === 'complete' && <CompleteScreen script={script} mode={mode} lineCount={lines.length} onRestart={() => goToLine(0)} />}
     </section>
   );
 }

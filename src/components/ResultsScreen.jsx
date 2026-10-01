@@ -1,6 +1,6 @@
 import { PASS_RATIO } from '../lib/quiz.js';
 
-export default function ResultsScreen({ line, isLast, answers, score, passed, onNext, onRetry, onStudy }) {
+export default function ResultsScreen({ mode = 'read', line, isLast, answers, score, passed, onNext, onRetry, onStudy }) {
   const total = answers.length;
   const pct = Math.round((score / total) * 100);
   const mistakes = answers.filter((a) => !a.correct);
@@ -11,7 +11,8 @@ export default function ResultsScreen({ line, isLast, answers, score, passed, on
       <div className="results-score">
         <span className="pct">{pct}%</span>
         <span>
-          {score} / {total} correct
+          {score} / {total} {mode === 'write' ? 'drawn correctly' : 'correct'}
+          {mode === 'write' && ` · avg accuracy ${Math.round(answers.reduce((a, x) => a + (x.accuracy || 0), 0) / total)}%`}
         </span>
       </div>
       <h2>{passed ? (isLast ? 'You passed the final line! 🎉' : 'Passed! Next line unlocked 🎉') : `Not quite: you need ${PASS_RATIO * 100}%`}</h2>
@@ -24,7 +25,15 @@ export default function ResultsScreen({ line, isLast, answers, score, passed, on
               <li key={i}>
                 <span className="kana-char small" lang="ja">{m.kana.char}</span>
                 <span className="mistake-detail">
-                  <s>{m.input}</s> → <strong>{m.kana.romaji}</strong>
+                  {mode === 'write' ? (
+                    <>
+                      <strong>{m.kana.romaji}</strong> · {m.accuracy}%
+                    </>
+                  ) : (
+                    <>
+                      <s>{m.input}</s> → <strong>{m.kana.romaji}</strong>
+                    </>
+                  )}
                 </span>
               </li>
             ))}
